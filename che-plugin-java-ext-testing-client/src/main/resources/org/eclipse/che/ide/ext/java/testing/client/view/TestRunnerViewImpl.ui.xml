@@ -30,7 +30,7 @@
                 <g:Label text="Java Test Runner..." addStyleNames=" {style.alignLeft}"/>
             </g:FlowPanel>
         </g:north>
-        <g:north size="26.0">
+        <g:north size="120.0">
             <g:FlowPanel>
                 <g:TextArea width="290px" ui:field="reference" addStyleNames="{style.alignLeft}"
                            debugId="test-runner-reference"/>
