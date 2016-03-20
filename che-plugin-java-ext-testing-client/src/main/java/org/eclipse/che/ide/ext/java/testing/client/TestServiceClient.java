@@ -10,27 +10,32 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.testing.client;
 
-import com.google.gwt.resources.client.ImageResource;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.AsyncRequestFactory;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.StringUnmarshaller;
-import org.eclipse.che.ide.rest.Unmarshallable;
-import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
-import org.eclipse.che.ide.util.loging.Log;
-import org.vectomatic.dom.svg.ui.SVGResource;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import java.util.Map;
+import org.eclipse.che.api.machine.gwt.client.WsAgentStateController;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.AsyncRequestFactory;
+import org.eclipse.che.ide.rest.StringUnmarshaller;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.websocket.Message;
+import org.eclipse.che.ide.websocket.MessageBuilder;
+import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.WebSocketException;
+import org.eclipse.che.ide.websocket.rest.RequestCallback;
+
+import javax.validation.constraints.NotNull;
+
+import static com.google.gwt.http.client.RequestBuilder.GET;
+import static org.eclipse.che.ide.MimeType.APPLICATION_JSON;
+import static org.eclipse.che.ide.MimeType.TEXT_PLAIN;
+import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 
 @Singleton
 public class TestServiceClient {
@@ -38,15 +43,17 @@ public class TestServiceClient {
     private final LoaderFactory loaderFactory;
     private final String extPath;
     private final String wsID;
-
+    private final WsAgentStateController wsAgentStateController;
 
     @Inject
     public TestServiceClient(@Named("cheExtensionPath") String extPath,
                              AsyncRequestFactory asyncRequestFactory,
                              AppContext appContext,
-                             LoaderFactory loaderFactory) {
+                             LoaderFactory loaderFactory,
+                             WsAgentStateController wsAgentStateController) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.loaderFactory = loaderFactory;
+        this.wsAgentStateController = wsAgentStateController;
 
         // extPath gets the relative path of Che app from the @Named DI in constructor
         // appContext is a Che class that provides access to workspace
@@ -55,14 +62,47 @@ public class TestServiceClient {
         this.wsID = appContext.getWorkspace().getId();
 
     }
+//
+//    // Invoked by our TestAction class
+//    // Invokes the request to the server
+//    public Promise<String> computeProposals(String projectPath, String fqn) {
+//        String url = extPath + "/testing/" + wsID + "/run/?projectpath=" + projectPath + "&fqn=" + fqn;
+//
+//        return asyncRequestFactory.createGetRequest(url)
+//                .loader(loaderFactory.newLoader("Loading your response..."))
+//                .send(new StringUnmarshaller());
+//    }
 
-    // Invoked by our TestAction class
-    // Invokes the request to the server
-    public Promise<String> computeProposals(String projectPath, String fqn) {
-        String url = extPath + "/testing/" + wsID + "/run/?projectpath=" + projectPath + "&fqn=" + fqn;
+    public void runTest(String workspaceId,
+                         ProjectConfigDto project,
+                         String fqn,
+                        RequestCallback<String> callback) {
+        String url = "/testing/" + workspaceId + "/run/?projectpath=" + project.getPath() + "&fqn=" + fqn;
+//        asyncRequestFactory.createGetRequest(url)
+//                .loader(loaderFactory.newLoader("Loading test results...")).send(callback);
+        updateDependencies(url,callback);
+    }
 
-        return asyncRequestFactory.createGetRequest(url)
-                .loader(loaderFactory.newLoader("Loading your response..."))
-                .send(new StringUnmarshaller());
+
+    public void updateDependencies(String url, RequestCallback<String> callback) {
+
+        MessageBuilder builder = new MessageBuilder(GET, url);
+        builder.header(ACCEPT, TEXT_PLAIN);
+        Message message = builder.build();
+        sendMessageToWS(message, callback);
+    }
+
+
+    private void sendMessageToWS(final @NotNull Message message, final @NotNull RequestCallback<?> callback) {
+        wsAgentStateController.getMessageBus().then(new Operation<MessageBus>() {
+            @Override
+            public void apply(MessageBus arg) throws OperationException {
+                try {
+                    arg.send(message, callback);
+                } catch (WebSocketException e) {
+                    throw new OperationException(e.getMessage(), e);
+                }
+            }
+        });
     }
 }

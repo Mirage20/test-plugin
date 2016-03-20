@@ -20,13 +20,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 @Path("testing/{ws-id}")
 public class TestingService {
 
     @GET
     @Path("run")
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     public String reconcile(@QueryParam("projectpath") String projectPath, @QueryParam("fqn") String fqn) {
         String absoluteProjectPath = ResourcesPlugin.getPathToWorkspace() + projectPath;
         TestRunner testRunner = null;

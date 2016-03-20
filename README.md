@@ -4,6 +4,7 @@
 * Currently support JUnit *4.x* 
 * Tested with che version *4.0.0-RC12-SNAPSHOT*
 * Currently able to view failures and stack trace within the **Events** window. 
+* Sample UI view
  
 
 ## Installation
