@@ -20,6 +20,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
+import org.eclipse.che.ide.ext.java.testing.shared.TestResult;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -76,7 +77,7 @@ public class TestServiceClient {
     public void runTest(String workspaceId,
                          ProjectConfigDto project,
                          String fqn,
-                        RequestCallback<String> callback) {
+                        RequestCallback<TestResult> callback) {
         String url = "/testing/" + workspaceId + "/run/?projectpath=" + project.getPath() + "&fqn=" + fqn;
 //        asyncRequestFactory.createGetRequest(url)
 //                .loader(loaderFactory.newLoader("Loading test results...")).send(callback);
@@ -84,10 +85,10 @@ public class TestServiceClient {
     }
 
 
-    public void updateDependencies(String url, RequestCallback<String> callback) {
+    public void updateDependencies(String url, RequestCallback<TestResult> callback) {
 
         MessageBuilder builder = new MessageBuilder(GET, url);
-        builder.header(ACCEPT, TEXT_PLAIN);
+        builder.header(ACCEPT, APPLICATION_JSON);
         Message message = builder.build();
         sendMessageToWS(message, callback);
     }

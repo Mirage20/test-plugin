@@ -32,7 +32,7 @@
         </g:north>
         <g:north size="26.0">
             <g:FlowPanel>
-                <g:TextBox width="290px" ui:field="reference" addStyleNames="{style.alignLeft}"
+                <g:TextArea width="290px" ui:field="reference" addStyleNames="{style.alignLeft}"
                            debugId="test-runner-reference"/>
             </g:FlowPanel>
         </g:north>

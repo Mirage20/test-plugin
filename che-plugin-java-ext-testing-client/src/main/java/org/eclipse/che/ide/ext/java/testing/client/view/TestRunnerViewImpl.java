@@ -19,6 +19,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -38,7 +39,7 @@ public class TestRunnerViewImpl extends Window implements TestRunnerView {
     Button btnRunTest;
     Button btnCancel;
     @UiField
-    TextBox reference;
+    TextArea reference;
 
     @Inject
     public TestRunnerViewImpl() {
@@ -69,7 +70,9 @@ public class TestRunnerViewImpl extends Window implements TestRunnerView {
 
     @Override
     public void showDialog() {
-        reference.setText("Waiting...");
+        reference.setText("Waiting for run the tests...");
+        reference.setReadOnly(true);
+        reference.setVisibleLines(10);
         this.show();
 //        reference.setReadOnly(true);
         new Timer() {

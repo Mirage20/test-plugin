@@ -17,6 +17,7 @@ import org.eclipse.che.ide.ext.java.testing.shared.Failure;
 import org.eclipse.che.ide.ext.java.testing.shared.TestResult;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class JUnitTestRunner extends TestRunner {
     }
 
     @Override
-    public TestResult run(String testClass) throws Exception {
+    public TestResult run(String testClass) throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
         URLClassLoader classLoader = new URLClassLoader(classUrls.toArray(new URL[classUrls.size()]), null);
         Class<?> clsTest = Class.forName(testClass, true, classLoader);
         Class<?> clsJUnitCore = Class.forName("org.junit.runner.JUnitCore", true, classLoader);

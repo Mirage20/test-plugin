@@ -26,6 +26,8 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.testing.client.TestServiceClient;
+import org.eclipse.che.ide.ext.java.testing.shared.Failure;
+import org.eclipse.che.ide.ext.java.testing.shared.TestResult;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -103,32 +105,47 @@ public class TestRunnerPresenter implements TestRunnerView.ActionDelegate {
 
     @Override
     public void onRunClicked() {
-        view.setText("Running testttts....");
-        final StatusNotification notification = new StatusNotification("Running Test...", PROGRESS, true);
+        view.setText("Running test cases...");
+        final StatusNotification notification = new StatusNotification("Running Tests...", PROGRESS, true);
         notificationManager.notify(notification);
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         EditorPartPresenter editorPart = editorAgent.getActiveEditor();
         final VirtualFile file = editorPart.getEditorInput().getFile();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
-        Unmarshallable<String> unmarshaller = new StringUnmarshallerWS();
+        Unmarshallable<TestResult> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(TestResult.class);
 
         service.runTest(appContext.getWorkspaceId(),
                 project,
                 fqn,
-                new RequestCallback<String>(unmarshaller) {
+                new RequestCallback<TestResult>(unmarshaller) {
                     @Override
-                    protected void onSuccess(String result) {
-                        notification.setTitle("Test runner executed successfully");
-                        notification.setContent(result);
-                        notification.setStatus(SUCCESS);
-                        view.setText(result);
+                    protected void onSuccess(TestResult result) {
+                        if(result.isSuccess()){
+                            notification.setTitle("Test runner executed successfully");
+                            notification.setContent("All tests are passed");
+                            notification.setStatus(SUCCESS);
+                            view.setText("All tests are passed");
+                        }
+                        else {
+                            notification.setTitle("Test runner executed successfully with test failures.");
+                            StringBuilder sb = new StringBuilder(result.getFailureCount() + " tests are failed.\n");
+
+                            for(Failure failure : result.getFailures()){
+                                sb.append(failure.getMessage()).append("\n")
+                                        .append(failure.getTrace()).append("\n");
+                            }
+                            notification.setContent(sb.toString());
+                            notification.setStatus(FAIL);
+                            view.setText(sb.toString());
+                        }
+
                     }
 
                     @Override
                     protected void onFailure(Throwable exception) {
                         final String errorMessage = (exception.getMessage() != null)
                                 ? exception.getMessage()
-                                : "Faild to run test cases";
+                                : "Failed to run test cases";
                         notification.setContent(errorMessage);
                         notification.setStatus(FAIL);
                     }
