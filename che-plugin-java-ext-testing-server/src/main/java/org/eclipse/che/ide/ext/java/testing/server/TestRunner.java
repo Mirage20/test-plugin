@@ -8,7 +8,9 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.testing.server.api;
+package org.eclipse.che.ide.ext.java.testing.server;
+
+import org.eclipse.che.ide.ext.java.testing.shared.TestResult;
 
 import java.io.BufferedReader;
 import java.io.File;

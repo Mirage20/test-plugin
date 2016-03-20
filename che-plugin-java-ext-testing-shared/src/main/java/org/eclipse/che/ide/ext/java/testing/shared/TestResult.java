@@ -4,18 +4,31 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.testing.server.api;
+package org.eclipse.che.ide.ext.java.testing.shared;
+
+import org.eclipse.che.dto.shared.DTO;
 
 import java.util.List;
 
+@DTO
 public interface TestResult {
+    String getTestFramework();
+
+    void setTestFramework(String framework);
+
     boolean isSuccess();
+
+    void setSuccess(boolean success);
 
     List<Failure> getFailures();
 
+    void setFailures(List<Failure> failures);
+
     int getFailureCount();
+
+    void setFailureCount(int count);
 }
