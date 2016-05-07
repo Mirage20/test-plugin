@@ -19,7 +19,6 @@ import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
@@ -38,9 +37,8 @@ import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
-import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
-import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.*;
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.*;
 
 /**
  * Presenter for checkout reference(branch, tag) name or commit hash.
@@ -106,7 +104,7 @@ public class TestRunnerPresenter implements TestRunnerView.ActionDelegate {
     @Override
     public void onRunClicked() {
         view.setText("Running test cases...");
-        final StatusNotification notification = new StatusNotification("Running Tests...", PROGRESS, true);
+        final StatusNotification notification = new StatusNotification("Running Tests...", PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         EditorPartPresenter editorPart = editorAgent.getActiveEditor();

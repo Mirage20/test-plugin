@@ -45,22 +45,25 @@ public class TestServiceClient {
     private final String extPath;
     private final String wsID;
     private final WsAgentStateController wsAgentStateController;
+    private final AppContext appContext;
 
     @Inject
-    public TestServiceClient(@Named("cheExtensionPath") String extPath,
-                             AsyncRequestFactory asyncRequestFactory,
+    public TestServiceClient(AsyncRequestFactory asyncRequestFactory,
                              AppContext appContext,
                              LoaderFactory loaderFactory,
                              WsAgentStateController wsAgentStateController) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.loaderFactory = loaderFactory;
         this.wsAgentStateController = wsAgentStateController;
-
+        this.appContext =  appContext;
         // extPath gets the relative path of Che app from the @Named DI in constructor
         // appContext is a Che class that provides access to workspace
 //        helloPath = extPath + "/testing/" + appContext.getWorkspace().getId();
-        this.extPath =extPath;
+        this.extPath = appContext.getDevMachine().getWsAgentBaseUrl();
         this.wsID = appContext.getWorkspace().getId();
+//        String url = appContext.getDevMachine().getWsAgentBaseUrl() + "/jdt/"
+//                + appContext.getWorkspaceId() + "/reconcile/?projectpath=" + projectPath + "&fqn=" + fqn;
+
 
     }
 //

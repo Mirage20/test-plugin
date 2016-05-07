@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-RC12-SNAPSHOT</version>
+        <version>4.3.0-RC1-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-java-parent-testing</artifactId>
     <packaging>pom</packaging>
@@ -25,6 +25,16 @@
         <module>che-plugin-java-ext-testing-client</module>
         <module>che-plugin-java-ext-testing-shared</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.che.plugin</groupId>
+                <artifactId>che-plugin-java-ext-testing-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -36,4 +46,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
